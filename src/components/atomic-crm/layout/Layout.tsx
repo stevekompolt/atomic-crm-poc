@@ -7,11 +7,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DataImportProvider } from "../dataImport/DataImportProvider";
 import { useConfigurationLoader } from "../root/useConfigurationLoader";
 import Header from "./Header";
+import { BrandingHead } from "../root/BrandingHead";
+import { useConfigurationContext } from "../root/ConfigurationContext";
 
 export const Layout = ({ children }: { children: ReactNode }) => {
   useConfigurationLoader();
+  const { title, favicon } = useConfigurationContext();
   return (
     <DataImportProvider>
+      <BrandingHead title={title} favicon={favicon} />
       <Header />
       <main className="max-w-screen-xl mx-auto p-4" id="main-content">
         <ErrorBoundary FallbackComponent={Error}>
