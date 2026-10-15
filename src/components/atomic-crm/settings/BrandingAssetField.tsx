@@ -18,14 +18,7 @@ export function BrandingAssetField({ source, label, help, className }: Props) {
       return;
     }
     setError("");
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setValue(source, reader.result, { shouldDirty: true });
-      }
-    };
-    reader.onerror = () => setError("Unable to read image.");
-    reader.readAsDataURL(file);
+    setValue(source, { rawFile: file, src: URL.createObjectURL(file) }, { shouldDirty: true });
   };
 
   return (
