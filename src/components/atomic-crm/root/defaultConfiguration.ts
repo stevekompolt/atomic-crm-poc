@@ -78,4 +78,7 @@ export const defaultConfiguration: ConfigurationContextValue = {
   favicon: null,
   loginBrandImage: null,
   headerLogo: null,
+  headerLogoLight: null,
+  headerLogoDark: null,
+  loginHeroFit: "cover",
 };
