@@ -121,7 +121,7 @@ const getCurrencyChoices = () => {
 };
 
 const BRANDING_BUCKET = "crm-branding";
-const brandingFields = ["favicon", "loginBrandImage", "headerLogo"] as const;
+const brandingFields = ["favicon", "loginBrandImage", "headerLogoLight", "headerLogoDark"] as const;
 
 const uploadBrandingAsset = async (value: any, field: string) => {
   if (!value?.rawFile) return typeof value === "string" ? value : value?.src ?? null;
@@ -150,6 +150,8 @@ const transformFormValues = async (data: Record<string, any>) => {
   return {
     config: {
       title: data.title,
+      loginHeroFit: data.loginHeroFit === "contain" ? "contain" : "cover",
+      headerLogo: data.headerLogo ?? null,
       lightModeLogo: data.lightModeLogo,
       darkModeLogo: data.darkModeLogo,
       ...uploaded,
@@ -205,6 +207,9 @@ const SettingsForm = () => {
       favicon: config.favicon,
       loginBrandImage: config.loginBrandImage,
       headerLogo: config.headerLogo,
+      headerLogoLight: config.headerLogoLight,
+      headerLogoDark: config.headerLogoDark,
+      loginHeroFit: config.loginHeroFit ?? "cover",
       currency: config.currency,
       companySectors: config.companySectors,
       dealCategories: config.dealCategories,
@@ -316,8 +321,10 @@ const SettingsFormFields = () => {
             <TextInput source="title" label="crm.settings.app_title" />
             <div className="space-y-5">
               <BrandingAssetField source="favicon" label="Favicon" help="Square browser icon, PNG/JPEG/WebP; up to 2MB." />
-              <BrandingAssetField source="loginBrandImage" label="Login brand image" help="Horizontal logo or animated GIF, up to 2MB." />
-              <BrandingAssetField source="headerLogo" label="Header logo" help="Compact horizontal logo, up to 2MB." />
+              <BrandingAssetField source="loginBrandImage" label="Login brand image" help="Full-screen hero image or GIF, up to 2MB." />
+              <div className="space-y-1"><label htmlFor="loginHeroFit" className="text-sm font-medium">Login hero image fit</label><select id="loginHeroFit" className="block rounded border bg-background px-3 py-2" value={watch("loginHeroFit") || "cover"} onChange={(event) => setValue("loginHeroFit", event.target.value, { shouldDirty: true })}><option value="cover">Cover — fill the entire panel (may crop)</option><option value="contain">Contain — show the entire image</option></select></div>
+              <BrandingAssetField source="headerLogoLight" label="Header logo — Light mode" help="Horizontal logo for light theme, up to 2MB." />
+              <BrandingAssetField source="headerLogoDark" label="Header logo — Dark mode" help="Horizontal logo for dark theme, up to 2MB." />
             </div>
             <div className="flex gap-8">
               <div className="flex flex-col items-center gap-1">
