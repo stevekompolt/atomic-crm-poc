@@ -22,6 +22,7 @@ import { TextInput } from "@/components/admin/text-input";
 
 import ImageEditorField from "../misc/ImageEditorField";
 import { BrandingAssetField } from "./BrandingAssetField";
+import { getSupabaseClient } from "../providers/supabase/supabase";
 import {
   useConfigurationContext,
   useConfigurationUpdater,
@@ -119,23 +120,49 @@ const getCurrencyChoices = () => {
   }));
 };
 
-const transformFormValues = (data: Record<string, any>) => ({
-  config: {
-    title: data.title,
-    lightModeLogo: data.lightModeLogo,
-    darkModeLogo: data.darkModeLogo,
-    favicon: data.favicon?.src ?? data.favicon ?? null,
-    loginBrandImage: data.loginBrandImage?.src ?? data.loginBrandImage ?? null,
-    headerLogo: data.headerLogo?.src ?? data.headerLogo ?? null,
-    currency: data.currency,
-    companySectors: ensureValues(data.companySectors),
-    dealCategories: ensureValues(data.dealCategories),
-    taskTypes: ensureValues(data.taskTypes),
-    dealStages: ensureValues(data.dealStages),
-    dealPipelineStatuses: data.dealPipelineStatuses,
-    noteStatuses: ensureValues(data.noteStatuses),
-  } as ConfigurationContextValue,
-});
+const BRANDING_BUCKET = "crm-branding";
+const brandingFields = ["favicon", "loginBrandImage", "headerLogo"] as const;
+
+const uploadBrandingAsset = async (value: any, field: string) => {
+  if (!value?.rawFile) return typeof value === "string" ? value : value?.src ?? null;
+  const file: File = value.rawFile;
+  const extensions: Record<string, string> = {
+    "image/png": "png", "image/jpeg": "jpg",
+    "image/webp": "webp", "image/gif": "gif",
+  };
+  const ext = extensions[file.type];
+  if (!ext || file.size > 2 * 1024 * 1024) {
+    throw new Error("Branding images must be PNG, JPEG, WebP or GIF, under 2 MB.");
+  }
+  const client = getSupabaseClient();
+  const { data: user, error: authError } = await client.auth.getUser();
+  if (authError || !user.user) throw new Error("Please sign in before uploading branding.");
+  const path = `${field}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await client.storage.from(BRANDING_BUCKET)
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw new Error(`Branding upload failed: ${error.message}`);
+  return client.storage.from(BRANDING_BUCKET).getPublicUrl(path).data.publicUrl;
+};
+
+const transformFormValues = async (data: Record<string, any>) => {
+  const uploaded: Record<string, string | null> = {};
+  for (const field of brandingFields) uploaded[field] = await uploadBrandingAsset(data[field], field);
+  return {
+    config: {
+      title: data.title,
+      lightModeLogo: data.lightModeLogo,
+      darkModeLogo: data.darkModeLogo,
+      ...uploaded,
+      currency: data.currency,
+      companySectors: ensureValues(data.companySectors),
+      dealCategories: ensureValues(data.dealCategories),
+      taskTypes: ensureValues(data.taskTypes),
+      dealStages: ensureValues(data.dealStages),
+      dealPipelineStatuses: data.dealPipelineStatuses,
+      noteStatuses: ensureValues(data.noteStatuses),
+    } as ConfigurationContextValue,
+  };
+};
 
 export const SettingsPage = () => {
   const updateConfiguration = useConfigurationUpdater();
