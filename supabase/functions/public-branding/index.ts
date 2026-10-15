@@ -46,6 +46,9 @@ Deno.serve(async (request) => {
       favicon: publicImageUrl(config.favicon),
       loginBrandImage: publicImageUrl(config.loginBrandImage),
       headerLogo: publicImageUrl(config.headerLogo),
+      headerLogoLight: publicImageUrl(config.headerLogoLight),
+      headerLogoDark: publicImageUrl(config.headerLogoDark),
+      loginHeroFit: config.loginHeroFit === "contain" ? "contain" : "cover",
     };
     return new Response(JSON.stringify(branding), { headers });
   } catch (error) {
