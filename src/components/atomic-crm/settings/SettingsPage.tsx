@@ -21,6 +21,7 @@ import { SimpleFormIterator } from "@/components/admin/simple-form-iterator";
 import { TextInput } from "@/components/admin/text-input";
 
 import ImageEditorField from "../misc/ImageEditorField";
+import { BrandingAssetField } from "./BrandingAssetField";
 import {
   useConfigurationContext,
   useConfigurationUpdater,
@@ -123,6 +124,9 @@ const transformFormValues = (data: Record<string, any>) => ({
     title: data.title,
     lightModeLogo: data.lightModeLogo,
     darkModeLogo: data.darkModeLogo,
+    favicon: data.favicon?.src ?? data.favicon ?? null,
+    loginBrandImage: data.loginBrandImage?.src ?? data.loginBrandImage ?? null,
+    headerLogo: data.headerLogo?.src ?? data.headerLogo ?? null,
     currency: data.currency,
     companySectors: ensureValues(data.companySectors),
     dealCategories: ensureValues(data.dealCategories),
@@ -171,6 +175,9 @@ const SettingsForm = () => {
       title: config.title,
       lightModeLogo: { src: config.lightModeLogo },
       darkModeLogo: { src: config.darkModeLogo },
+      favicon: config.favicon,
+      loginBrandImage: config.loginBrandImage,
+      headerLogo: config.headerLogo,
       currency: config.currency,
       companySectors: config.companySectors,
       dealCategories: config.dealCategories,
@@ -280,6 +287,11 @@ const SettingsFormFields = () => {
               {translate("crm.settings.sections.branding")}
             </h2>
             <TextInput source="title" label="crm.settings.app_title" />
+            <div className="space-y-5">
+              <BrandingAssetField source="favicon" label="Favicon" help="Square browser icon, PNG/JPEG/WebP; up to 2MB." />
+              <BrandingAssetField source="loginBrandImage" label="Login brand image" help="Horizontal logo or animated GIF, up to 2MB." />
+              <BrandingAssetField source="headerLogo" label="Header logo" help="Compact horizontal logo, up to 2MB." />
+            </div>
             <div className="flex gap-8">
               <div className="flex flex-col items-center gap-1">
                 <p className="text-sm text-muted-foreground">
