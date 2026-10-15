@@ -172,3 +172,7 @@ verify_jwt = false
 verify_jwt = false
 [functions.mcp]
 verify_jwt = false
+
+# Only allowlisted, public installation branding; no session required.
+[functions.public-branding]
+verify_jwt = false
