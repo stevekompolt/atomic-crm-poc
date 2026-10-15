@@ -75,4 +75,7 @@ export const defaultConfiguration: ConfigurationContextValue = {
   title: defaultTitle,
   darkModeLogo: defaultDarkModeLogo,
   lightModeLogo: defaultLightModeLogo,
+  favicon: null,
+  loginBrandImage: null,
+  headerLogo: null,
 };
