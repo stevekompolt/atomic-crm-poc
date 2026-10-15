@@ -28,6 +28,8 @@ export const LoginPage = (props: { redirectTo?: string }) => {
   const { branding, ready } = usePublicBranding();
   const publicTitle = branding?.title || title;
   const publicLogo = branding?.loginBrandImage || branding?.headerLogo || darkModeLogo;
+  const isHero = !!branding?.loginBrandImage;
+  const heroFit = branding?.loginHeroFit === "contain" ? "object-contain" : "object-cover";
   const { redirectTo } = props;
   const [loading, setLoading] = useState(false);
   const hasDisplayedRecoveryNotification = useRef(false);
@@ -97,11 +99,10 @@ export const LoginPage = (props: { redirectTo?: string }) => {
     <div className="min-h-screen flex">
       <BrandingHead title={branding?.title || title} favicon={branding?.favicon} />
       <div className="relative grid w-full lg:grid-cols-2">
-        <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
-          <div className="absolute inset-0 bg-zinc-900" />
-          <div className="relative z-20 flex items-center text-lg font-medium" aria-busy={!ready}>
-            {ready && <img className="max-h-36 max-w-full object-contain" src={publicLogo} alt={publicTitle} />}
-            {ready && !branding?.loginBrandImage && !branding?.headerLogo && <span>{publicTitle}</span>}
+        <div className="relative hidden min-h-screen overflow-hidden bg-zinc-900 text-white dark:border-r lg:block">
+          <div className="absolute inset-0 flex items-center justify-center" aria-busy={!ready}>
+            {ready && <img className={isHero ? `h-full w-full ${heroFit}` : "max-h-36 max-w-[90%] object-contain"} src={publicLogo} alt={publicTitle} />}
+            {ready && !isHero && !branding?.headerLogo && <span className="ml-2 text-lg font-medium">{publicTitle}</span>}
           </div>
         </div>
         <div className="flex flex-col justify-center w-full p-4 lg:p-8">
