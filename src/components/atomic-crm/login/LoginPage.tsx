@@ -8,6 +8,7 @@ import { Notification } from "@/components/admin/notification";
 import { useConfigurationContext } from "@/components/atomic-crm/root/ConfigurationContext.tsx";
 import { SSOAuthButton } from "./SSOAuthButton";
 import { usePublicBranding } from "./usePublicBranding";
+import { BrandingHead } from "../root/BrandingHead";
 import {
   disableEmailPasswordAuthentication,
   googleWorkplaceDomain,
@@ -94,6 +95,7 @@ export const LoginPage = (props: { redirectTo?: string }) => {
 
   return (
     <div className="min-h-screen flex">
+      <BrandingHead title={branding?.title || title} favicon={branding?.favicon} />
       <div className="relative grid w-full lg:grid-cols-2">
         <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
           <div className="absolute inset-0 bg-zinc-900" />
