@@ -11,9 +11,9 @@ const headers = {
 
 const publicImageUrl = (value: unknown): string | null =>
   typeof value === "string" &&
-  value.length <= 4096 &&
+  value.length <= 2800000 &&
   (value.startsWith("https://") || value.startsWith("data:image/png;base64,") ||
-    value.startsWith("data:image/webp;base64,") || value.startsWith("data:image/svg+xml;base64,"))
+    value.startsWith("data:image/webp;base64,") || value.startsWith("data:image/jpeg;base64,") || value.startsWith("data:image/gif;base64,") || value.startsWith("data:image/svg+xml;base64,"))
     ? value
     : null;
 
@@ -43,6 +43,9 @@ Deno.serve(async (request) => {
         ? config.title : "Atomic CRM",
       darkModeLogo: publicImageUrl(config.darkModeLogo),
       lightModeLogo: publicImageUrl(config.lightModeLogo),
+      favicon: publicImageUrl(config.favicon),
+      loginBrandImage: publicImageUrl(config.loginBrandImage),
+      headerLogo: publicImageUrl(config.headerLogo),
     };
     return new Response(JSON.stringify(branding), { headers });
   } catch (error) {
