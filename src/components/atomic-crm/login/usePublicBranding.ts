@@ -5,6 +5,7 @@ export type PublicBranding = {
   favicon?: string | null;
   loginBrandImage?: string | null;
   headerLogo?: string | null;
+  loginHeroFit?: "cover" | "contain";
 };
 export function usePublicBranding() {
   const [branding, setBranding] = useState<PublicBranding | null>(null);
