@@ -496,6 +496,9 @@ const SettingsFormFields = () => {
                     src: defaultConfiguration.lightModeLogo,
                   },
                   darkModeLogo: { src: defaultConfiguration.darkModeLogo },
+                  favicon: null,
+                  loginBrandImage: null,
+                  headerLogo: null,
                 })
               }
             >
