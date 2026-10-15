@@ -20,6 +20,9 @@ export interface ConfigurationContextValue {
   favicon?: string | null;
   loginBrandImage?: string | null;
   headerLogo?: string | null;
+  headerLogoLight?: string | null;
+  headerLogoDark?: string | null;
+  loginHeroFit?: "cover" | "contain";
 }
 
 export const useConfigurationContext = () => {
