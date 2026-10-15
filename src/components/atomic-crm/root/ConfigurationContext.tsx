@@ -17,6 +17,9 @@ export interface ConfigurationContextValue {
   title: string;
   darkModeLogo: string;
   lightModeLogo: string;
+  favicon?: string | null;
+  loginBrandImage?: string | null;
+  headerLogo?: string | null;
 }
 
 export const useConfigurationContext = () => {
