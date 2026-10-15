@@ -151,7 +151,7 @@ const transformFormValues = async (data: Record<string, any>) => {
     config: {
       title: data.title,
       loginHeroFit: data.loginHeroFit === "contain" ? "contain" : "cover",
-      headerLogo: data.headerLogo ?? null,
+      headerLogo: null, // Clear deprecated single header image; avoid fallback after removing theme assets.
       lightModeLogo: data.lightModeLogo,
       darkModeLogo: data.darkModeLogo,
       ...uploaded,
