@@ -11,7 +11,7 @@ import { ImportPage } from "../misc/ImportPage";
 import { ChangelogPage } from "../misc/ChangelogPage";
 
 const Header = () => {
-  const { darkModeLogo, lightModeLogo, title } = useConfigurationContext();
+  const { darkModeLogo, lightModeLogo, headerLogo, title } = useConfigurationContext();
   const location = useLocation();
   const translate = useTranslate();
 
@@ -40,12 +40,12 @@ const Header = () => {
               >
                 <img
                   className="[.light_&]:hidden h-6"
-                  src={darkModeLogo}
+                  src={headerLogo || darkModeLogo}
                   alt={title}
                 />
                 <img
                   className="[.dark_&]:hidden h-6"
-                  src={lightModeLogo}
+                  src={headerLogo || lightModeLogo}
                   alt={title}
                 />
                 <h1 className="text-xl font-semibold">{title}</h1>
