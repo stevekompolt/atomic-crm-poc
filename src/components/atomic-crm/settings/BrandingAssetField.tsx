@@ -18,8 +18,14 @@ export function BrandingAssetField({ source, label, help, className }: Props) {
       return;
     }
     setError("");
-    const preview = URL.createObjectURL(file);
-    setValue(source, { src: preview, rawFile: file, title: file.name }, { shouldDirty: true });
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setValue(source, reader.result, { shouldDirty: true });
+      }
+    };
+    reader.onerror = () => setError("Unable to read image.");
+    reader.readAsDataURL(file);
   };
 
   return (
