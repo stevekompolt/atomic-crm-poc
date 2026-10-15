@@ -7,6 +7,7 @@ import { TextInput } from "@/components/admin/text-input";
 import { Notification } from "@/components/admin/notification";
 import { useConfigurationContext } from "@/components/atomic-crm/root/ConfigurationContext.tsx";
 import { SSOAuthButton } from "./SSOAuthButton";
+import { usePublicBranding } from "./usePublicBranding";
 import {
   disableEmailPasswordAuthentication,
   googleWorkplaceDomain,
@@ -23,6 +24,9 @@ import {
  */
 export const LoginPage = (props: { redirectTo?: string }) => {
   const { darkModeLogo, title } = useConfigurationContext();
+  const { branding, ready } = usePublicBranding();
+  const publicTitle = branding?.title || title;
+  const publicLogo = branding?.loginBrandImage || branding?.headerLogo || darkModeLogo;
   const { redirectTo } = props;
   const [loading, setLoading] = useState(false);
   const hasDisplayedRecoveryNotification = useRef(false);
@@ -93,9 +97,9 @@ export const LoginPage = (props: { redirectTo?: string }) => {
       <div className="relative grid w-full lg:grid-cols-2">
         <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
           <div className="absolute inset-0 bg-zinc-900" />
-          <div className="relative z-20 flex items-center text-lg font-medium">
-            <img className="h-6 mr-2" src={darkModeLogo} alt={title} />
-            {title}
+          <div className="relative z-20 flex items-center text-lg font-medium" aria-busy={!ready}>
+            {ready && <img className="max-h-36 max-w-full object-contain" src={publicLogo} alt={publicTitle} />}
+            {ready && !branding?.loginBrandImage && !branding?.headerLogo && <span>{publicTitle}</span>}
           </div>
         </div>
         <div className="flex flex-col justify-center w-full p-4 lg:p-8">
