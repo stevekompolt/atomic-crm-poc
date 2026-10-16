@@ -21,6 +21,8 @@ import { SimpleFormIterator } from "@/components/admin/simple-form-iterator";
 import { TextInput } from "@/components/admin/text-input";
 
 import ImageEditorField from "../misc/ImageEditorField";
+import { BrandingAssetField } from "./BrandingAssetField";
+import { getSupabaseClient } from "../providers/supabase/supabase";
 import {
   useConfigurationContext,
   useConfigurationUpdater,
@@ -118,20 +120,51 @@ const getCurrencyChoices = () => {
   }));
 };
 
-const transformFormValues = (data: Record<string, any>) => ({
-  config: {
-    title: data.title,
-    lightModeLogo: data.lightModeLogo,
-    darkModeLogo: data.darkModeLogo,
-    currency: data.currency,
-    companySectors: ensureValues(data.companySectors),
-    dealCategories: ensureValues(data.dealCategories),
-    taskTypes: ensureValues(data.taskTypes),
-    dealStages: ensureValues(data.dealStages),
-    dealPipelineStatuses: data.dealPipelineStatuses,
-    noteStatuses: ensureValues(data.noteStatuses),
-  } as ConfigurationContextValue,
-});
+const BRANDING_BUCKET = "crm-branding";
+const brandingFields = ["favicon", "loginBrandImage", "headerLogoLight", "headerLogoDark"] as const;
+
+const uploadBrandingAsset = async (value: any, field: string) => {
+  if (!value?.rawFile) return typeof value === "string" ? value : value?.src ?? null;
+  const file: File = value.rawFile;
+  const extensions: Record<string, string> = {
+    "image/png": "png", "image/jpeg": "jpg",
+    "image/webp": "webp", "image/gif": "gif",
+  };
+  const ext = extensions[file.type];
+  if (!ext || file.size > 2 * 1024 * 1024) {
+    throw new Error("Branding images must be PNG, JPEG, WebP or GIF, under 2 MB.");
+  }
+  const client = getSupabaseClient();
+  const { data: user, error: authError } = await client.auth.getUser();
+  if (authError || !user.user) throw new Error("Please sign in before uploading branding.");
+  const path = `${field}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await client.storage.from(BRANDING_BUCKET)
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw new Error(`Branding upload failed: ${error.message}`);
+  return client.storage.from(BRANDING_BUCKET).getPublicUrl(path).data.publicUrl;
+};
+
+const transformFormValues = async (data: Record<string, any>) => {
+  const uploaded: Record<string, string | null> = {};
+  for (const field of brandingFields) uploaded[field] = await uploadBrandingAsset(data[field], field);
+  return {
+    config: {
+      title: data.title,
+      loginHeroFit: data.loginHeroFit === "contain" ? "contain" : "cover",
+      headerLogo: null, // Clear deprecated single header image; avoid fallback after removing theme assets.
+      lightModeLogo: data.lightModeLogo,
+      darkModeLogo: data.darkModeLogo,
+      ...uploaded,
+      currency: data.currency,
+      companySectors: ensureValues(data.companySectors),
+      dealCategories: ensureValues(data.dealCategories),
+      taskTypes: ensureValues(data.taskTypes),
+      dealStages: ensureValues(data.dealStages),
+      dealPipelineStatuses: data.dealPipelineStatuses,
+      noteStatuses: ensureValues(data.noteStatuses),
+    } as ConfigurationContextValue,
+  };
+};
 
 export const SettingsPage = () => {
   const updateConfiguration = useConfigurationUpdater();
@@ -171,6 +204,12 @@ const SettingsForm = () => {
       title: config.title,
       lightModeLogo: { src: config.lightModeLogo },
       darkModeLogo: { src: config.darkModeLogo },
+      favicon: config.favicon,
+      loginBrandImage: config.loginBrandImage,
+      headerLogo: config.headerLogo,
+      headerLogoLight: config.headerLogoLight,
+      headerLogoDark: config.headerLogoDark,
+      loginHeroFit: config.loginHeroFit ?? "cover",
       currency: config.currency,
       companySectors: config.companySectors,
       dealCategories: config.dealCategories,
@@ -280,6 +319,13 @@ const SettingsFormFields = () => {
               {translate("crm.settings.sections.branding")}
             </h2>
             <TextInput source="title" label="crm.settings.app_title" />
+            <div className="space-y-5">
+              <BrandingAssetField source="favicon" label="Favicon" help="Square browser icon, PNG/JPEG/WebP; up to 2MB." />
+              <BrandingAssetField source="loginBrandImage" label="Login brand image" help="Full-screen hero image or GIF, up to 2MB." />
+              <div className="space-y-1"><label htmlFor="loginHeroFit" className="text-sm font-medium">Login hero image fit</label><select id="loginHeroFit" className="block rounded border bg-background px-3 py-2" value={watch("loginHeroFit") || "cover"} onChange={(event) => setValue("loginHeroFit", event.target.value, { shouldDirty: true })}><option value="cover">Cover — fill the entire panel (may crop)</option><option value="contain">Contain — show the entire image</option></select></div>
+              <BrandingAssetField source="headerLogoLight" label="Header logo — Light mode" help="Horizontal logo for light theme, up to 2MB." />
+              <BrandingAssetField source="headerLogoDark" label="Header logo — Dark mode" help="Horizontal logo for dark theme, up to 2MB." />
+            </div>
             <div className="flex gap-8">
               <div className="flex flex-col items-center gap-1">
                 <p className="text-sm text-muted-foreground">
@@ -484,6 +530,9 @@ const SettingsFormFields = () => {
                     src: defaultConfiguration.lightModeLogo,
                   },
                   darkModeLogo: { src: defaultConfiguration.darkModeLogo },
+                  favicon: null,
+                  loginBrandImage: null,
+                  headerLogo: null,
                 })
               }
             >

@@ -11,7 +11,7 @@ import { ImportPage } from "../misc/ImportPage";
 import { ChangelogPage } from "../misc/ChangelogPage";
 
 const Header = () => {
-  const { darkModeLogo, lightModeLogo, title } = useConfigurationContext();
+  const { darkModeLogo, lightModeLogo, headerLogoLight, headerLogoDark, title } = useConfigurationContext();
   const location = useLocation();
   const translate = useTranslate();
 
@@ -36,19 +36,20 @@ const Header = () => {
             <div className="flex justify-between items-center flex-1">
               <Link
                 to="/"
-                className="flex items-center gap-2 text-secondary-foreground no-underline"
+                className="flex items-center gap-2 h-14 min-w-0 text-secondary-foreground no-underline"
               >
                 <img
-                  className="[.light_&]:hidden h-6"
-                  src={darkModeLogo}
+                  className="[.light_&]:hidden h-12 max-w-[260px] w-auto object-contain"
+                  src={headerLogoDark || darkModeLogo}
                   alt={title}
                 />
                 <img
-                  className="[.dark_&]:hidden h-6"
-                  src={lightModeLogo}
+                  className="[.dark_&]:hidden h-12 max-w-[260px] w-auto object-contain"
+                  src={headerLogoLight || lightModeLogo}
                   alt={title}
                 />
-                <h1 className="text-xl font-semibold">{title}</h1>
+                {!headerLogoDark && <h1 className="[.light_&]:hidden text-xl font-semibold">{title}</h1>}
+                {!headerLogoLight && <h1 className="[.dark_&]:hidden text-xl font-semibold">{title}</h1>}
               </Link>
               <div>
                 <nav className="flex">
